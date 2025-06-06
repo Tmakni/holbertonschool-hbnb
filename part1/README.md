@@ -22,8 +22,8 @@ This first diagram shows the **three main layers** of the application:
 - **Persistence Layer**: Manages the storage and retrieval of data from the database.
 
 ```mermaid
-<!-- architecture_layers.md -->
 classDiagram
+    %% === Présentation Layer ===
     class PresentationLayer {
         <<Interface>>
         +UserService
@@ -31,6 +31,7 @@ classDiagram
         +ReviewService
     }
 
+    %% === Business Logic Layer ===
     class BusinessLogicLayer {
         +User
         +Place
@@ -39,6 +40,7 @@ classDiagram
         +HBnBFacade
     }
 
+    %% === Persistence Layer ===
     class PersistenceLayer {
         +UserRepository
         +PlaceRepository
@@ -46,5 +48,6 @@ classDiagram
         +AmenityRepository
     }
 
+    %% === Communications ===
     PresentationLayer --> BusinessLogicLayer : uses (via Facade)
     BusinessLogicLayer --> PersistenceLayer : reads/writes data
