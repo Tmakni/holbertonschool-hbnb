@@ -12,6 +12,7 @@ classDiagram
         +register()
         -update_profile()
         -delete()
+        +write_review()
     }
 
     class Place {
@@ -27,6 +28,9 @@ classDiagram
         +create()
         -update()
         -delete()
+        +get_owner()
+        +add_amenity()
+        +remove_amenity()
     }
 
     class Review {
@@ -40,6 +44,8 @@ classDiagram
         +create()
         -update()
         -delete()
+        +get_user()
+        +get_place()
     }
 
     class Amenity {
