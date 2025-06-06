@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     %% === Présentation Layer ===
     class PresentationLayer {
