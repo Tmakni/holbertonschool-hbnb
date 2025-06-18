@@ -29,8 +29,8 @@ class AmenityList(Resource):
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
         """Retrieve a list of all amenities"""
-        # Placeholder for logic to return a list of all amenities
-        pass
+        amenities = facade.get_all_amenities()
+        return [a.to_dict() for a in amenities], 200
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -38,8 +38,10 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
         """Get amenity details by ID"""
-        # Placeholder for the logic to retrieve an amenity by ID
-        pass
+        amenity = facade.get_amenity(amenity_id)
+        if not amenity:
+            api.abort(404, 'Amenity not found')
+        return amenity.to_dict(), 200
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
