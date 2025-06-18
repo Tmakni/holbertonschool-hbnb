@@ -1,6 +1,10 @@
+#!/usr/bin/python3
+
+
 from .basemodel import BaseModel
 from .place import Place
 from .user import User
+
 
 class Review(BaseModel):
     """Review of a Place by a User"""
