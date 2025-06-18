@@ -2,6 +2,7 @@
 
 
 from .basemodel import BaseModel
+from .place import Place
 import re
 
 def validate_email(email):
@@ -29,6 +30,7 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.isadmin = isadmin
+        self.places = []
 
     @property
     def is_admin(self):
