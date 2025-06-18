@@ -70,3 +70,15 @@ class Review(BaseModel):
         super().update(filtered)
 
     def __repr__(self):
+        return f"<Review id={self.id} rating={self.rating} place_id={self.place.id} user_id={self.user.id}>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'rating': self.rating,
+            'place_id': self.place.id,
+            'user_id': self.user.id,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
