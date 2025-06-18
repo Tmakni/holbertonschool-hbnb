@@ -2,6 +2,9 @@
 
 
 from .basemodel import BaseModel
+from .amenity import Amenity
+from .review import Review
+from .user import User
 
 
 class Place(BaseModel):
