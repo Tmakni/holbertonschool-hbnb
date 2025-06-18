@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3  
 
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
@@ -16,9 +16,15 @@ class AmenityList(Resource):
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new amenity"""
-        # Placeholder for the logic to register a new amenity
-        pass
+        """egister a new amenity"""
+        data = api.payload or {}
+        if 'name' not in data:
+            api.abort(400, 'missing required field: name')
+        try:
+            amenity = facade.create_amenity(data)
+            return amenity.to_dict(), 201
+        except (TypeError, ValueError) as e:
+            api.abort(400, str(e))
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
