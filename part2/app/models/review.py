@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-
-
 from .basemodel import BaseModel
 from .place import Place
 from .user import User
