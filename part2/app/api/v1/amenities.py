@@ -10,13 +10,14 @@ amenity_model = api.model('Amenity', {
     'name': fields.String(required=True, description='Name of the amenity')
 })
 
+
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """egister a new amenity"""
+        """Register a new amenity"""
         data = api.payload or {}
         if 'name' not in data:
             api.abort(400, 'missing required field: name')
@@ -31,6 +32,7 @@ class AmenityList(Resource):
         """Retrieve a list of all amenities"""
         amenities = facade.get_all_amenities()
         return [a.to_dict() for a in amenities], 200
+
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
