@@ -49,5 +49,10 @@ class AmenityResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
         """Update an amenity's information"""
-        # Placeholder for the logic to update an amenity by ID
-        pass
+        data = api.payload or {}
+        if 'name' not in data:
+            api.abort(400, 'Missing required field: name')
+        updated = facade.update_amenity(amenity_id, data)
+        if not updated:
+            api.abort(404, 'Amenity not found')
+        return updated.to_dict(), 200
