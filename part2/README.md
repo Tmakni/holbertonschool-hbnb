@@ -59,7 +59,7 @@ Result code : 200
   "email": "tom.makknni@gmail.com"
 }
 ```
---
+---
 ```
 curl -X 'GET' \
   'http://127.0.0.1:5000/api/v1/users/a68a5001-e1e8-4b10' \
