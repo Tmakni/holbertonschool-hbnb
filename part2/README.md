@@ -76,6 +76,26 @@ Error: NOT FOUND
  ## Places
 
  ### Post
+ ```
+curl -X 'POST' \
+  'http://127.0.0.1:5000/api/v1/places/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "title": "Cozy",
+  "description": "Cozy place",
+  "price": 120,
+  "latitude": 80,
+  "longitude": 120,
+  "owner_id": "a7c16847-e55e-4a55-9ce4-5c97c9a37584",
+  "amenities": [
+    "aucune"
+  ]
+}'
+
+```
+Result Code : 400
+Error: Bad Request
 
  ### Get All
 
@@ -97,6 +117,17 @@ Error: NOT FOUND
  ## Amenities
 
  ### Post
+ ```
+ curl -X 'POST' \
+   'http://127.0.0.1:5000/api/v1/amenities/' \
+   -H 'accept: application/json' \
+   -H 'Content-Type: application/json' \
+   -d '{
+   "name": "piscine"
+ }'
+```
+Result Code : 201
+---
 
  ### Get All
 
