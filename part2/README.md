@@ -2,6 +2,10 @@
 
  ## Users
 
+ #### Post
+
+ #### Get
+ 
  ## Places
 
  ## Reviews
