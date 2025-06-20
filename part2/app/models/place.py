@@ -1,73 +1,40 @@
 #!/usr/bin/python3
 
 
+from uuid import uuid4
+from datetime import datetime
 from .basemodel import BaseModel
-from .amenity import Amenity
-from .review import Review
-from .user import User
 
 
 class Place(BaseModel):
+    """Modèle Place plus flexible : accepte owner_id OU owner,
+    initialise amenities & reviews par défaut."""
 
-    def __init__(self, title, description, price, latitude, longitude, owner, amenities, reviews):
-        if not isinstance(price, (int, float)):
-            raise TypeError("Price must be a number")
-        if not isinstance(title, str):
-            raise TypeError("Title must be a string")
-        if not isinstance(latitude, (int, float)):
-            raise TypeError("Latitude must be a number")
-        if not isinstance(longitude, (int, float)):
-            raise TypeError("Longitude must be a number")
+    def __init__(self, title, description, price, latitude, longitude,
+                 owner_id=None, owner=None, amenities=None, reviews=None, **kwargs):
         super().__init__()
+        # --- validations basiques ---
+        if not isinstance(title, str):
+            raise TypeError("title must be a string")
+        if not isinstance(price, (int, float)):
+            raise TypeError("price must be a number")
+        if price <= 0:
+            raise ValueError("price must be positive")
+        if not isinstance(latitude, (int, float)) or not -90.0 <= latitude <= 90.0:
+            raise ValueError("latitude out of range")
+        if not isinstance(longitude, (int, float)) or not -180.0 <= longitude <= 180.0:
+            raise ValueError("longitude out of range")
+
         self.title = title
         self.description = description
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner
-        self.amenities = []
-        self.reviews = []
 
-    @property
-    def title(self):
-        return self._title
+        self.owner_id = owner_id or owner
 
-    @title.setter
-    def title(self, value):
-        if not isinstance(value, str):
-            raise TypeError("The Title must be a string")
+        self.amenities = amenities or []
+        self.reviews = reviews or []
 
-    @property
-    def price(self):
-        return self._price
-
-    @price.setter
-    def price(self, value):
-        if value <= 0:
-            raise ValueError("Price must be positive")
-        self._price = value
-
-    @property
-    def latitude(self):
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value):
-        if (value < -90.0 or value > 90.0):
-            raise ValueError("Latitude not found")
-        self._latitude = value
-
-    @property
-    def longitude(self):
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value):
-        if (value < -180.0 or value > 180.0):
-            raise ValueError("Longitude not found")
-        self._longitude = value
-
-    def add_amenity(self, amenity):
-        if isinstance(amenity, Amenity):
-            self.amenities.append(amenity)
-
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
