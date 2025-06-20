@@ -18,11 +18,11 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new amenity"""
-        data = api.payload or {}
-        if 'name' not in data:
+        amenity_data = api.payload or {}
+        if 'name' not in amenity_data:
             api.abort(400, 'missing required field: name')
         try:
-            amenity = facade.create_amenity(data)
+            amenity = facade.create_amenity(amenity_data)
             return amenity.to_dict(), 201
         except (TypeError, ValueError) as e:
             api.abort(400, str(e))
@@ -51,10 +51,10 @@ class AmenityResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
         """Update an amenity's information"""
-        data = api.payload or {}
+        amenity_data = api.payload or {}
         if 'name' not in data:
             api.abort(400, 'Missing required field: name')
-        updated = facade.update_amenity(amenity_id, data)
+        updated = facade.update_amenity(amenity_id, amenity_data)
         if not updated:
             api.abort(404, 'Amenity not found')
         return updated.to_dict(), 200

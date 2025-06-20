@@ -63,7 +63,11 @@ class Place(BaseModel):
 
     @longitude.setter
     def longitude(self, value):
-        if (value < -90.0 or value > 90.0):
+        if (value < -180.0 or value > 180.0):
             raise ValueError("Longitude not found")
         self._longitude = value
+
+    def add_amenity(self, amenity):
+        if isinstance(amenity, Amenity):
+            self.amenities.append(amenity)
 
