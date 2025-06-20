@@ -44,7 +44,35 @@ Error: BAD REQUEST
 }
 ```
  ### Get
- 
+
+```
+curl -X 'GET' \
+  'http://127.0.0.1:5000/api/v1/users/a68a5001-e1e8-4b10-87c8-3b7eadfba345' \
+  -H 'accept: application/json'
+```
+Result code : 200
+```
+{
+  "id": "a68a5001-e1e8-4b10-87c8-3b7eadfba345",
+  "first_name": "Tom",
+  "last_name": "Makni",
+  "email": "tom.makknni@gmail.com"
+}
+```
+--
+```
+curl -X 'GET' \
+  'http://127.0.0.1:5000/api/v1/users/a68a5001-e1e8-4b10' \
+  -H 'accept: application/json'
+```
+Result code : 404 
+Error: NOT FOUND
+```
+{
+  "error": "User not found"
+}
+``` 
+
  ## Places
 
  ### Post
