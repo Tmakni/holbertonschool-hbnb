@@ -77,6 +77,8 @@ Error: NOT FOUND
 
  ### Post
  ```
+ 
+ ```
 curl -X 'POST' \
   'http://127.0.0.1:5000/api/v1/places/' \
   -H 'accept: application/json' \
@@ -92,14 +94,22 @@ curl -X 'POST' \
     "aucune"
   ]
 }'
-
 ```
 Result Code : 400
 Error: Bad Request
 
  ### Get All
+ ```
+ curl -X 'GET' \
+  'http://127.0.0.1:5000/api/v1/places/' \
+  -H 'accept: application/json'
+ ```
+ Result Code : 500
+ Error : internal server error
 
  ### Get Id
+  ```
+ 
 
  ### Put
  
@@ -125,8 +135,15 @@ Error: Bad Request
    -d '{
    "name": "piscine"
  }'
-```
+ ```
+
 Result Code : 201
+ ```
+ {
+  "id": "6dbd3695-8167-4e62-994b-d2a700d25ab8",
+  "name": "piscine"
+ }
+ ```
 ---
 
  ### Get All
