@@ -46,27 +46,29 @@ class ReviewList(Resource):
         reviews = facade.get_all_reviews()
         return [r.to_dict() for r in reviews], 200
     @api.route('/<string:review_id>')
-    class ReviewRessource(Recourse):
-        @api.reponse(200, 'Review details retrieved successfully')
-        @api.reponse(404, 'Review not found')
-        def get(self, review_id):
-            """ get review_id detail ID """
-            review = facade.get_review(review_id)
-            if not review:
-                api.abort(404, 'Review not found')
-            return review.to_dict(), 200
 
-        @api.execpt(review_model)
-        @api.reponse(200, 'Review updated successfully')
-        @api.reponse(400, 'Invalid input data')
-        @api.reponse(404, 'Review not found')
-        def put(self, review_id):
-            data = api.playoad or {}
-            review = facade.get_review(review_id)
-            if not review:
-                api.abort(400, 'Review not found')
-            try:
-                updated = facade.update_review(review_id, data)
-                return updated.to_dict(), 200
-            except (TypeError, ValueError) as e:
-                api.abort(400, str(e))
+
+class ReviewRessource(Recourse):
+    @api.reponse(200, 'Review details retrieved successfully')
+    @api.reponse(404, 'Review not found')
+    def get(self, review_id):
+        """ get review_id detail ID """
+        review = facade.get_review(review_id)
+        if not review:
+            api.abort(404, 'Review not found')
+        return review.to_dict(), 200
+
+    @api.execpt(review_model)
+    @api.reponse(200, 'Review updated successfully')
+    @api.reponse(400, 'Invalid input data')
+    @api.reponse(404, 'Review not found')
+    def put(self, review_id):
+        data = api.playoad or {}
+        review = facade.get_review(review_id)
+        if not review:
+            api.abort(400, 'Review not found')
+        try:
+            updated = facade.update_review(review_id, data)
+            return updated.to_dict(), 200
+        except (TypeError, ValueError) as e:
+            api.abort(400, str(e))
