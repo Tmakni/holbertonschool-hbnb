@@ -3,7 +3,6 @@ from app.persistence.repository import InMemoryRepository
 from ..models.user import User
 from ..models.place import Place
 from ..models.review import Review
-from ..models.amenity import Amenity
 
 
 class HBnBFacade:
@@ -29,6 +28,7 @@ class HBnBFacade:
 
     def create_amenity(self, amenity_data):
         #To create an amenity
+        from ..models.amenity import Amenity
         amenity = Amenity(**amenity_data)
         self.amenity_repo.add(amenity)
         return amenity
