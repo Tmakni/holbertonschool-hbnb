@@ -1,68 +1,57 @@
 #!/usr/bin/python3
-
-
-from .basemodel import BaseModel
-from .place import Place
-from .amenity import Amenity
-from .review import Review
+"""
+User model for HBnB application
+"""
 import re
+from .basemodel import BaseModel
+
 
 def validate_email(email):
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z{2,}$'
-    if re.match(pattern, email):
-        return email
-    raise ValueError("Error format email")
+    """Validate email format"""
+    pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+    if not isinstance(email, str) or not re.match(pattern, email):
+        raise ValueError("Invalid email format")
+    return email
 
-def validate_name(name):
-    if not isinstance(name, str):
-        raise ValueError("Name must be a string")
-    return name
 
+def validate_name(name, field_name):
+    """Validate that name is a non-empty string and within length"""
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError(f"{field_name} must be a non-empty string")
+    stripped = name.strip()
+    if len(stripped) > 50:
+        raise ValueError(f"{field_name} must be at most 50 characters")
+    return stripped
 
 class User(BaseModel):
+    """Represents a user in the HBnB application"""
 
-    def __init__(self, first_name=None, last_name=None, email=None, isadmin=False):
-        if first_name == None:
-            raise ValueError("first name requiered")
-        if last_name == None:
-            raise ValueError("last name requiered")
-        if email == None:
-            raise ValueError("email requiered")
+    def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
-        self.first_name = validate_name(first_name)
-        self.last_name = validate_name(last_name)
-        self.email = validate_email(email)
-        self.isadmin = isadmin
-        self.places = []
+        # Initialize private attributes
+        self.__first_name = None
+        self.__last_name = None
+        self.__email = None
+        self.__is_admin = None
 
-    @property
-    def is_admin(self):
-        return self.__is_admin
+        # Validate and assign via setters
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+        self.is_admin = is_admin
 
-    @is_admin.setter
-    def is_admin(self, value):
-        if isinstance(value, bool):
-            self__is_damin = value #verify is_admin is False or True
-        else:
-            raise ValueError("isadmin must be True or False")
-    
-    @property
-    def email(self):
-        return self.__email
-
-    @email.setter
-    def email(self, value):
-        if validate_email(value) == value:
-            self.__email = value
+        # Relationships as ID lists
+        self.places = []   # store place IDs
+        self.reviews = []  # store review IDs
 
     @property
     def first_name(self):
-        return self.first_name
+        return self.__first_name
 
     @first_name.setter
     def first_name(self, value):
-        if validate_name == value:
-            self.__first_name = value
+        self.__first_name = validate_name(value, 'First name')
+        self.save()
 
     @property
     def last_name(self):
@@ -70,5 +59,39 @@ class User(BaseModel):
 
     @last_name.setter
     def last_name(self, value):
-        if validate_name == value:
-            self.__last_name = value
+        self.__last_name = validate_name(value, 'Last name')
+        self.save()
+
+    @property
+    def email(self):
+        return self.__email
+
+    @email.setter
+    def email(self, value):
+        self.__email = validate_email(value)
+        self.save()
+
+    @property
+    def is_admin(self):
+        return self.__is_admin
+
+    @is_admin.setter
+    def is_admin(self, value):
+        if not isinstance(value, bool):
+            raise TypeError("is_admin must be a boolean")
+        self.__is_admin = value
+        self.save()
+
+    def to_dict(self):
+        """Serialize User to a dict"""
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'is_admin': self.is_admin,
+            'places': self.places,
+            'reviews': self.reviews,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }

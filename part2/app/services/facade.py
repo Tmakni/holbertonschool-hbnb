@@ -77,7 +77,7 @@ class HBnBFacade:
 
     def get_all_reviews(self):
         #To retrieve all reviews
-        return self.review_repo.get_all(review)
+        return self.review_repo.get_all()
 
     def get_reviews_by_place(self, place_id):
         #To retrieve all reviews for a specific place
