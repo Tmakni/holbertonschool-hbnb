@@ -16,10 +16,19 @@ class user(db.model):
     is_admin = db.Column(db.Boolean, default=False)
 
 
-def hash_password(self, password):
-    """Hashes the password before storing it."""
-    self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-def verify_password(self, password):
-    """Verifies if the provided password matches the hashed password."""
-    return bcrypt.check_password_hash(self.password, password)
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
+
+    def to_dict(self) -> dict:
+        return{
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "mail": self.mail,
+            "if_admin": self.id_admin,
+        }
