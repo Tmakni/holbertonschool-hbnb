@@ -1,7 +1,3 @@
-#!/usr/bin/python3
-"""
-Reviews endpoints for HBnB application
-"""
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -23,10 +19,10 @@ class ReviewList(Resource):
     def post(self):
         """Register a new review"""
         review_data = api.payload
-        place = facade.get_place(review_data.get('place_id'))
+        place = facade.get_place(review_data['place_id'])
         if not place:
             return {'error': 'Place not found'}, 400
-        user = facade.get_user(review_data.get('user_id'))
+        user = facade.get_user(review_data['user_id'])
         if not user:
             return {'error': 'User not found'}, 400
         if place.owner.id == user.id:
@@ -42,7 +38,7 @@ class ReviewList(Resource):
         """Retrieve a list of all reviews"""
         return [review.to_dict() for review in facade.get_all_reviews()], 200
 
-@api.route('/<string:review_id>')
+@api.route('/<review_id>')
 class ReviewResource(Resource):
     @api.response(200, 'Review details retrieved successfully')
     @api.response(404, 'Review not found')
@@ -63,6 +59,7 @@ class ReviewResource(Resource):
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
+        
         try:
             facade.update_review(review_id, review_data)
             return {'message': 'Review updated successfully'}, 200
@@ -76,6 +73,7 @@ class ReviewResource(Resource):
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
+        
         try:
             facade.delete_review(review_id)
             return {'message': 'Review deleted successfully'}, 200
