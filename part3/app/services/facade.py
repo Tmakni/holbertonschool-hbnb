@@ -88,6 +88,13 @@ class HBnBFacade:
         del review_data['place_id']
         review_data['place'] = place
 
+        if place.owner.id == user.id:
+            raise KeyError("You can't review your own place")
+
+        for r in place.reviews:
+            if r.user.id == user.id:
+                raise KeyError('You have already reviewed this place')
+
         review = Review(**review_data)
         self.review_repo.add(review)
         user.add_review(review)
