@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from app.auth.decorators import admin_required
 
 api = Namespace('users', description='User operations')
 
@@ -13,6 +14,8 @@ user_model = api.model('User', {
 
 @api.route('/')
 class UserList(Resource):
+
+    @admin_required
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
@@ -20,6 +23,7 @@ class UserList(Resource):
     def post(self):
         """Register a new user"""
         user_data = api.payload
+
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
@@ -31,7 +35,7 @@ class UserList(Resource):
             return new_user.to_dict(), 201
         except Exception as e:
             return {'error': str(e)}, 400
-        
+    @admin_required
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Retrieve a list of users"""
@@ -40,6 +44,7 @@ class UserList(Resource):
     
 @api.route('/<user_id>')
 class UserResource(Resource):
+    @admin_required
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
@@ -49,6 +54,7 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return user.to_dict(), 200
 
+    @admin_required
     @api.expect(user_model)
     @api.response(200, 'User updated successfully')
     @api.response(404, 'User not found')

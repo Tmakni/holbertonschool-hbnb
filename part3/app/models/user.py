@@ -1,10 +1,10 @@
-from .basemodel import BaseModel
+from .basemodel import BaseModel, bcrypt
 import re
 
 class User(BaseModel):
     emails = set()
 
-    def __init__(self, first_name, last_name, email, is_admin=False, password):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
@@ -12,8 +12,8 @@ class User(BaseModel):
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-        self.password = password
-    
+        self.__password = password
+
     @property
     def first_name(self):
         return self.__first_name
