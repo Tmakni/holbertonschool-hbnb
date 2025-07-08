@@ -59,3 +59,14 @@ class AmenityResource(Resource):
             return {"message": "Amenity updated successfully"}, 200
         except Exception as e:
             return {'error': str(e)}, 400
+
+@api.route('/amenities/')
+class AdminAmenityCreate(Resource):
+    @jwt_required()
+    def post(self):
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
+
+        # Logic to create a new amenity
+        pass
