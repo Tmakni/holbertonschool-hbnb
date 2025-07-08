@@ -1,10 +1,10 @@
-from .basemodel import BaseModel
+from .basemodel import BaseModel, bcrypt
 import re
 
 class User(BaseModel):
     emails = set()
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
@@ -12,7 +12,8 @@ class User(BaseModel):
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-    
+        self.__password = password
+
     @property
     def first_name(self):
         return self.__first_name
@@ -80,4 +81,13 @@ class User(BaseModel):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'email': self.email
+        
         }
+
+    def hash_password(self, password):
+        """hashes the password"""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the passwords matches"""
+        return bcrypt.check_password_hash(self.password, password)
