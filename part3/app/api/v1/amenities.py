@@ -1,3 +1,4 @@
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -14,10 +15,18 @@ class AmenityList(Resource):
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def post(self):
         """Register a new amenity"""
+        current_user = get_jwt_identity()
+        if not current_user:
+            return {'error':'Unauthorized action'}, 403
+
+        is_admin = get_jwt()['is_admin']
+        if not is_admin:
+            return {'error':'Admin privileges required'}, 403
+
         amenity_data = api.payload
-        
         existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
         if existing_amenity:
             return {'error': 'Invalid input data'}, 400
@@ -49,9 +58,18 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, amenity_id):
+        current_user = get_jwt_identity()
+        if not current_user:
+            return {'error':'Unauthorized action'}, 403
+
+        is_admin = get_jwt()['is_admin']
+        if not is_admin:
+            return {'error':'Admin privileges required'}, 403
         amenity_data = api.payload
         amenity = facade.get_amenity(amenity_id)
+
         if not amenity:
             return {'error': 'Amenity not found'}, 404
         try:
@@ -59,28 +77,3 @@ class AmenityResource(Resource):
             return {"message": "Amenity updated successfully"}, 200
         except Exception as e:
             return {'error': str(e)}, 400
-
-
-@api.route('/amenities/')
-class AdminAmenityCreate(Resource):
-    @api.expect(amenity_model, validate=True)
-    @api.response(201, 'Amenity created')
-    @api.response(400, 'Invalid data')
-    def post(self):
-        """Create a new amenity admin only"""
-        data = api.payload
-        try:
-            new_amenity = facade.create_amenity(data)
-            return new_amenity.to_dict(), 201
-        except Exception as e:
-            return {'error': str(e)}, 400
-
-@api.route('/amenities/<amenity_id>')
-class AdminAmenityModify(Resource):
-    @api.expect(amenity_model, validate=True)
-    def put(self, amenity_id):
-        amenity = facade.get_amenity(amenity_id)
-        if not amenity:
-            return {'error': 'Amenity not found'}, 404
-        updated = facade.update_amenity(amenity_id, api.payload)
-        return updated.to_dict(), 200

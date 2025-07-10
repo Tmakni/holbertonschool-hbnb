@@ -79,6 +79,10 @@ class PlaceResource(Resource):
         if place.owner.id != current_user:
             return {'error':'Unauthorized action'}
 
+        is_admin = get_jwt()['is_admin']
+        if not is_admin:
+            return {'error':'Admin privileges required'}, 403
+
         try:
             facade.update_place(place_id, place_data)
             return {'message': 'Place updated successfully'}, 200

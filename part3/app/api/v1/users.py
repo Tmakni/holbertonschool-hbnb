@@ -1,6 +1,5 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from app.auth.decorators import admin_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('users', description='User operations')
@@ -10,13 +9,13 @@ user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
-    'password': fields.String(required=True, description='Password of the user')
+    'password': fields.String(required=True, description='Password of the user'),
+    'is_admin': fields.Boolean(description='Admin status'
 })
 
 @api.route('/')
 class UserList(Resource):
 
-    @admin_required
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
@@ -25,6 +24,13 @@ class UserList(Resource):
         """Register a new user"""
         user_data = api.payload
 
+        if 'is_admin' in user_data:
+            user = get_jwt_identity()
+            if not user:
+                return {'error': 'Unauthorized action'}, 401
+            is_admin = get_jwt()['is_admin']
+            if not is_admin:
+                return {'error': 'Admin privileges required'}, 403
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
         existing_user = facade.get_user_by_email(user_data['email'])
@@ -36,7 +42,7 @@ class UserList(Resource):
             return new_user.to_dict(), 201
         except Exception as e:
             return {'error': str(e)}, 400
-    @admin_required
+
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Retrieve a list of users"""
@@ -45,7 +51,6 @@ class UserList(Resource):
     
 @api.route('/<user_id>')
 class UserResource(Resource):
-    @admin_required
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
@@ -55,7 +60,6 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return user.to_dict(), 200
 
-    @admin_required
     @api.expect(user_model)
     @api.response(200, 'User updated successfully')
     @api.response(404, 'User not found')
@@ -66,10 +70,13 @@ class UserResource(Resource):
         user_data = api.payload
         user = facade.get_user(user_id)
 
-        if current_user != user_id:
+        if current_user != user_id and not admin:
             return {'error':'Unauthorized action'}, 403
 
-        if not user_data.get('email') or user_data.get('password'):
+        if not admin and user_data.get('is_admin'):
+            return {'error':'Admin privileges required'}, 403
+
+        if not amdin and (user_data.get('email') or user_data.get('password')):
             return {'error':'You cannot modify email or password.'}, 400
 
         if not user:
