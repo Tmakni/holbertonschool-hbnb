@@ -1,0 +1,90 @@
+/* 
+  This is a SAMPLE File to get you started. Follow the instructions on the project to complete the tasks. 
+  You'll probably need to override some of theese styles.
+*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 1rem;
+}
+
+main {
+    padding: 2rem;
+}
+.place-details {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.place-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.place-info li {
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+}
+
+.place-info li img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+.review-card {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: white;
+}
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+#review-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+#review-form textarea,
+#review-form select,
+#review-form button {
+  margin-top: 10px;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#review-form button {
+  background-color: orange;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
