@@ -1,18 +1,25 @@
 from .basemodel import BaseModel
 import re
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 class User(BaseModel):
     emails = set()
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
+        self.password = generate_password_hash(password)  # ✅ ajoute le mot de passe hashé
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-    
+
+    # Ajoute une méthode de vérification :
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
     @property
     def first_name(self):
         return self.__first_name
