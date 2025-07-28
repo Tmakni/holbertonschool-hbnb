@@ -1,12 +1,11 @@
 from flask import Flask
-from flask_jwt_extended import JWTManager
-from app.api import api
+from flask_restx import Api
+from app.place import api as place_ns
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "super-secret"
-jwt = JWTManager(app)
+api = Api(app)
 
-api.init_app(app)  # 👈 ici tu relies ton API à l'app Flask
+api.add_namespace(place_ns, path="/api/v1/places")
 
 if __name__ == "__main__":
     app.run(debug=True)
