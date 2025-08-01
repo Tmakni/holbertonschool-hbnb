@@ -3,15 +3,31 @@ console.log('Enhanced scripts.js loaded');
 document.addEventListener('DOMContentLoaded', () => {
   refreshLoginVisibility();
 
-  if (document.body.id === 'index-page') {
-    initIndexPage();
-  } else if (document.body.id === 'place-page') {
-    initPlacePage();
-  } else if (document.body.id === 'login-page') {
-    initLoginPage();
+  // Page-specific initialization
+  switch (document.body.id) {
+    case 'index-page':
+      initIndexPage();
+      break;
+    case 'place-page':
+      // Ensure only authenticated users can add reviews
+      checkAuthentication();
+      initPlacePage();
+      break;
+    case 'login-page':
+      initLoginPage();
+      break;
+    case 'add-review-page':
+      // For a dedicated add_review.html page
+      const token = checkAuthentication();
+      const placeId = getPlaceIdFromURL();
+      setupAddReviewForm(token, placeId);
+      break;
+    default:
+      break;
   }
 });
 
+/*** COOKIE UTILS ***/
 function getCookie(name) {
   const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
   return match ? decodeURIComponent(match[1]) : null;
@@ -37,6 +53,22 @@ function refreshLoginVisibility() {
   }
 }
 
+/*** AUTHENTICATION CHECK ***/
+function checkAuthentication() {
+  const token = getCookie('session_id');
+  if (!token) {
+    window.location.href = 'index.html';
+    return null;
+  }
+  return token;
+}
+
+/*** URL UTILS ***/
+function getPlaceIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
 /*** INDEX PAGE ***/
 function initIndexPage() {
   setupPriceFilter();
@@ -52,7 +84,7 @@ async function fetchPlaces() {
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   try {
-    const response = await fetch('http://localhost:5001/api/v1/places/', { headers });
+    const response = await fetch('http://127.0.0.1:5000/api/v1/places/', { headers });
     if (response.status === 401) throw new Error('Unauthorized');
     if (!response.ok) throw new Error(`Error ${response.status}`);
     const places = await response.json();
@@ -102,7 +134,7 @@ function setupPriceFilter() {
 
 /*** PLACE DETAIL PAGE ***/
 async function initPlacePage() {
-  const placeId = new URLSearchParams(window.location.search).get('id');
+  const placeId = getPlaceIdFromURL();
   if (!placeId) return console.error('No id param');
 
   refreshLoginVisibility();
@@ -119,7 +151,7 @@ async function loadPlaceDetails(id) {
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   try {
-    const res = await fetch(`http://127.0.0.1:5001/api/v1/places/${id}/`, { headers });
+    const res = await fetch(`http://127.0.0.1:5000/api/v1/places/${id}/`, { headers });
     if (res.status === 401) throw new Error('Unauthorized');
     if (!res.ok) throw new Error(`Error ${res.status}`);
     const place = await res.json();
@@ -131,10 +163,11 @@ async function loadPlaceDetails(id) {
 }
 
 function displayPlaceDetails(p) {
-  document.getElementById('place-details').innerHTML = `
+  const details = document.getElementById('place-details');
+  details.innerHTML = `
     <h2>${p.name || p.title}</h2>
     <p><strong>Host:</strong> ${p.user.first_name} ${p.user.last_name}</p>
-    <p><strong>Price per night:</strong> ${p.price_by_night || p.price}/</p>
+    <p><strong>Price per night:</strong> ${p.price_by_night || p.price}€/night</p>
     <p>${p.description}</p>
     <ul>${(p.amenities || []).map(a => `<li>${a.name}</li>`).join('')}</ul>
   `;
@@ -160,13 +193,20 @@ function toggleReviewForm(placeId) {
 }
 
 function setupReviewForm(placeId) {
-  document.getElementById('review-form').addEventListener('submit', async e => {
+  const form = document.getElementById('review-form');
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const text = e.target['review-text'].value;
     const rating = +e.target.rating.value;
-    await postReview(placeId, { text, rating });
-    e.target.reset();
-    await loadPlaceDetails(placeId);
+    try {
+      await postReview(placeId, { text, rating });
+      alert('Review submitted successfully!');
+      form.reset();
+      await loadPlaceDetails(placeId);
+    } catch (err) {
+      console.error('postReview error:', err);
+      alert('Failed to submit review: ' + err.message);
+    }
   });
 }
 
@@ -174,18 +214,46 @@ async function postReview(placeId, { text, rating }) {
   const headers = { 'Content-Type': 'application/json' };
   const token = getCookie('session_id');
   if (token) headers['Authorization'] = `Bearer ${token}`;
-  try {
-    const res = await fetch(`http://localhost:5001/api/v1/places/${placeId}/reviews/`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ text, rating, place_id: placeId })
-    });
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    alert('Review posted!');
-  } catch (err) {
-    console.error('postReview error:', err);
-    alert('Unable to post review: ' + err.message);
-  }
+
+  const res = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}/reviews/`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ text, rating, place_id: placeId })
+  });
+  if (!res.ok) throw new Error(`Status ${res.status}`);
+}
+
+/*** ADD REVIEW PAGE (dedicated) ***/
+function setupAddReviewForm(token, placeId) {
+  const form = document.getElementById('review-form');
+  if (!form || !placeId) return;
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const text = e.target['review-text'].value;
+    const rating = +e.target.rating.value;
+    try {
+      await submitReview(token, placeId, text, rating);
+      alert('Review submitted successfully!');
+      form.reset();
+      window.location.href = `place.html?id=${placeId}`;
+    } catch (err) {
+      console.error('submitReview error:', err);
+      alert('Failed to submit review: ' + err.message);
+    }
+  });
+}
+
+async function submitReview(token, placeId, text, rating) {
+  const res = await fetch(`http://127.0.0.1:5000/api/v1/places/${placeId}/reviews/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ place_id: placeId, text, rating })
+  });
+  if (!res.ok) throw new Error(`Status ${res.status}`);
 }
 
 /*** LOGIN PAGE ***/
@@ -195,7 +263,7 @@ function initLoginPage() {
     const email = e.target.email.value;
     const password = e.target.password.value;
     try {
-      const res = await fetch('http://localhost:5001/api/v1/auth_session/', {
+      const res = await fetch('http://127.0.0.1:5000/api/v1/auth/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
